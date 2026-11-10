@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chat with Reception | Nile Century Hospital</title>
+<meta name="description" content="Send a question or message to Nile Century Hospital reception.">
+<style>
+:root{--navy:#102c46;--teal:#087f8c;--pale:#eef7f8;--line:#d9e5e8;--ink:#203342}
+*{box-sizing:border-box}body{margin:0;background:#f4f8fa;color:var(--ink);font:16px/1.5 Arial,sans-serif}
+header{background:var(--navy);color:white;padding:18px 20px}header .wrap{max-width:900px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px}header a{color:white}
+main{max-width:760px;margin:30px auto;padding:0 16px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 8px 28px #102c4610}
+h1{font-size:27px;margin:0 0 5px;color:var(--navy)}.muted{color:#627681;font-size:14px}
+label{display:block;font-weight:600;margin:14px 0 6px}input,textarea{width:100%;border:1px solid #cbd9de;border-radius:9px;padding:12px;font:inherit}textarea{min-height:82px;resize:vertical}
+button{background:var(--teal);color:white;border:0;border-radius:9px;padding:11px 18px;font-weight:700;font-size:15px;cursor:pointer}button:disabled{opacity:.55;cursor:wait}
+#messages{height:360px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:12px;background:#f9fcfc;margin:18px 0;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:86%;padding:10px 13px;border-radius:13px;background:#e8f1f4;align-self:flex-start;overflow-wrap:anywhere}.msg.mine{background:#d9f2ef;align-self:flex-end}.msg small{display:block;color:#647780;margin-top:4px;font-size:11px}
+.notice{background:#fff8e8;border:1px solid #f0dfb8;border-radius:10px;padding:12px;margin:15px 0;font-size:13px}
+#status{min-height:22px;color:var(--teal);font-size:13px;margin-top:8px}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+@media(max-width:520px){.panel{padding:16px}#messages{height:330px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><strong>Nile Century Hospital</strong><a href="index.html">← Back to website</a></div></header>
+<main><section class="panel">
+<h1>Chat with Reception</h1><div class="muted">Ask a question, leave a comment, or contact our reception team.</div>
+<div class="notice"><strong>Please note:</strong> Do not send emergency requests or sensitive medical information here. For emergencies, call 0998111114/15 or 0111864871. This chat is not monitored as an emergency service.</div>
+<div id="identity">
+<label for="visitorName">Your name</label><input id="visitorName" maxlength="80" autocomplete="name" placeholder="Your name">
+<label for="visitorContact">Phone or email (optional)</label><input id="visitorContact" maxlength="120" placeholder="How reception can contact you">
+</div>
+<div id="messages" aria-live="polite"><div class="muted">Your conversation will appear here. Send a message to begin.</div></div>
+<label for="message">Your message</label><textarea id="message" maxlength="2000" placeholder="Type your question or comment..."></textarea>
+<div class="actions"><span class="muted">Messages are sent to hospital reception.</span><button id="send">Send message</button></div>
+<div id="status" role="status"></div>
+</section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+ const URL='https://cmsxkczawawiyoamywnz.supabase.co';
+ const KEY='sb_publishable_8aJbvv-rmzaF9KUMQoRlig_uv1kNa4u';
+ const TOKEN_KEY='nch_reception_chat_token_v1', NAME_KEY='nch_reception_chat_name_v1', CONTACT_KEY='nch_reception_chat_contact_v1';
+ const status=document.getElementById('status'), box=document.getElementById('messages'), send=document.getElementById('send');
+ if(!window.supabase){status.textContent='Chat could not load. Please refresh this page.';return;}
+ let token=localStorage.getItem(TOKEN_KEY);
+ if(!token){token=crypto.randomUUID();localStorage.setItem(TOKEN_KEY,token);}
+ const db=window.supabase.createClient(URL,KEY,{global:{headers:{'x-chat-token':token}}});
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const stamp=s=>new Date(s).toLocaleString();
+ let lastId=0, loading=false;
+ const nameInput=document.getElementById('visitorName'), contactInput=document.getElementById('visitorContact');
+ nameInput.value=localStorage.getItem(NAME_KEY)||'';contactInput.value=localStorage.getItem(CONTACT_KEY)||'';
+ function render(rows){
+   if(!rows.length && !box.dataset.hasMessages)return;
+   if(!box.dataset.hasMessages){box.innerHTML='';box.dataset.hasMessages='1';}
+   rows.forEach(m=>{const el=document.createElement('div');el.className='msg '+(m.sender_type==='visitor'?'mine':'');el.innerHTML='<strong>'+esc(m.sender_type==='visitor'?'You':'Reception')+'</strong><div>'+esc(m.message).replace(/\n/g,'<br>')+'</div><small>'+esc(stamp(m.created_at))+'</small>';box.appendChild(el);lastId=Math.max(lastId,Number(m.id)||0);});
+   box.scrollTop=box.scrollHeight;
+ }
+ async function load(){
+   if(loading)return;loading=true;
+   const {data,error}=await db.from('chat_messages').select('id,sender_type,sender_name,message,created_at').eq('conversation_id',token).order('id',{ascending:true}).limit(100);
+   loading=false;
+   if(error){status.textContent='Unable to load messages. Please refresh or try again later.';return;}
+   render(data||[]);
+ }
+ send.addEventListener('click',async()=>{
+   const message=document.getElementById('message').value.trim(),name=nameInput.value.trim(),contact=contactInput.value.trim();
+   if(!name){status.textContent='Please enter your name.';nameInput.focus();return;}
+   if(!message){status.textContent='Please type a message first.';return;}
+   send.disabled=true;status.textContent='Sending...';
+   localStorage.setItem(NAME_KEY,name);localStorage.setItem(CONTACT_KEY,contact);
+   const senderName=contact?name+' · '+contact:name;
+   const {error}=await db.from('chat_messages').insert({conversation_id:token,sender_type:'visitor',sender_name:senderName,message});
+   send.disabled=false;
+   if(error){status.textContent='Message not sent. Please try again.';return;}
+   document.getElementById('message').value='';status.textContent='Message sent to reception.';await load();
+ });
+ document.getElementById('message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send.click();}});
+ load();setInterval(load,5000);
+})();
+</script>
+</body></html>
