@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reception Chat Inbox | Nile Century Hospital</title>
+<style>
+:root{--navy:#102c46;--teal:#087f8c;--line:#d9e5e8;--ink:#203342}
+*{box-sizing:border-box}body{margin:0;background:#f3f7f9;color:var(--ink);font:15px/1.5 Arial,sans-serif}
+header{background:var(--navy);color:white;padding:16px 20px}header .w{max-width:1100px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+main{max-width:1100px;margin:24px auto;padding:0 14px}.card{background:white;border:1px solid var(--line);border-radius:13px;padding:18px}
+input,textarea{width:100%;padding:11px;border:1px solid #cbd9de;border-radius:8px;font:inherit;margin:5px 0 12px}
+button{background:var(--teal);color:white;border:0;border-radius:8px;padding:10px 15px;font-weight:bold;cursor:pointer}button:disabled{opacity:.55}
+#login{max-width:420px;margin:50px auto}#app{display:none}.layout{display:grid;grid-template-columns:330px 1fr;gap:15px}
+#threads{max-height:70vh;overflow:auto} .thread{display:block;width:100%;text-align:left;background:#f7fafb;color:var(--ink);border:1px solid var(--line);margin:0 0 8px;padding:12px}
+.thread.active{border-color:var(--teal);background:#eaf6f6}.thread small{display:block;color:#637680;font-weight:normal}
+#conversation{height:48vh;min-height:300px;overflow:auto;background:#f8fbfc;border:1px solid var(--line);border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:9px}
+.msg{max-width:85%;padding:10px 12px;background:#e9f0f3;border-radius:11px;overflow-wrap:anywhere}.msg.staff{align-self:flex-end;background:#d8f1ec}.msg small{display:block;color:#627681;font-size:11px;margin-top:4px}
+#replyrow{display:flex;gap:8px;margin-top:10px}#reply{flex:1;min-height:60px}
+#status{color:var(--teal);min-height:22px;font-size:13px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}#threads{max-height:240px}#conversation{height:40vh}}
+</style></head>
+<body><header><div class="w"><strong>Nile Century Hospital · Reception Chat</strong><a href="admin.html" style="color:white">Appointment dashboard</a></div></header>
+<main>
+<section id="login" class="card"><h2>Staff sign in</h2><p>Use your existing hospital reception Supabase account.</p>
+<label>Email</label><input id="email" type="email" autocomplete="username">
+<label>Password</label><input id="password" type="password" autocomplete="current-password">
+<button id="loginBtn">Sign in</button><div id="loginStatus"></div></section>
+<section id="app"><div class="layout">
+<div class="card"><h2>Conversations</h2><div id="threads">Loading conversations...</div></div>
+<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><h2 id="chatTitle">Select a conversation</h2><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button id="enableAlerts" type="button" style="background:#536875">Enable notifications</button><button id="soundToggle" type="button" style="background:#087f8c">Sound: ON</button></div></div><div id="alertStatus" style="font-size:13px;color:#087f8c;min-height:20px" aria-live="polite"></div><div id="conversation"></div>
+<div id="replyrow"><textarea id="reply" placeholder="Write a reply..." maxlength="2000"></textarea><button id="replyBtn">Reply</button></div><div id="status"></div>
+<button id="logout" style="margin-top:10px;background:#536875">Sign out</button></div>
+</div></section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(() => {
+ const URL='https://cmsxkczawawiyoamywnz.supabase.co',KEY='sb_publishable_8aJbvv-rmzaF9KUMQoRlig_uv1kNa4u';
+ const db=window.supabase.createClient(URL,KEY);
+ const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let current=null,rows=[],poll=null;
+ let knownMessageIds=new Set(), firstRefresh=true, soundEnabled=true, audioContext=null, unreadByConversation=new Map();
+ function playAlert(){
+  if(!soundEnabled)return;
+  try{
+   const AudioCtx=window.AudioContext||window.webkitAudioContext;
+   if(!AudioCtx)return;
+   audioContext=audioContext||new AudioCtx();
+   if(audioContext.state==='suspended')audioContext.resume();
+   const now=audioContext.currentTime;
+   [0,0.24,0.48].forEach((offset,i)=>{
+    const oscillator=audioContext.createOscillator(),gain=audioContext.createGain();
+    oscillator.type='sine';oscillator.frequency.value=[660,880,1040][i];
+    gain.gain.setValueAtTime(0.0001,now+offset);
+    gain.gain.exponentialRampToValueAtTime(0.75,now+offset+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.242);
+    oscillator.connect(gain);gain.connect(audioContext.destination);
+    oscillator.start(now+offset);oscillator.stop(now+offset+0.24);
+   });
+  }catch(e){}
+ }
+ function notifyNewMessages(messages){
+  if(!messages.length)return;
+  playAlert();
+  const count=messages.length;
+  $('alertStatus').textContent=count+' new visitor message'+(count===1?'':'s')+' received.';
+  if(document.hidden && 'Notification' in window && Notification.permission==='granted'){
+   try{new Notification('Nile Century Hospital – New chat message',{body:count===1?'A visitor sent a new message.':count+' new visitor messages received.'});}catch(e){}
+  }
+ }
+ $('enableAlerts').onclick=async()=>{
+  try{
+   const AudioCtx=window.AudioContext||window.webkitAudioContext;
+   if(AudioCtx){audioContext=audioContext||new AudioCtx();await audioContext.resume();playAlert();}
+   if('Notification' in window){
+    const permission=await Notification.requestPermission();
+    $('alertStatus').textContent=permission==='granted'?'Browser notifications enabled. Keep this page open to receive alerts.':'Sound is ready. Browser notifications were not enabled.';
+   }else $('alertStatus').textContent='Sound is ready. This browser does not support desktop notifications.';
+  }catch(e){$('alertStatus').textContent='Sound alerts are available; browser notifications could not be enabled.';}
+ };
+ $('soundToggle').onclick=()=>{
+  soundEnabled=!soundEnabled;
+  $('soundToggle').textContent='Sound: '+(soundEnabled?'ON':'OFF');
+  $('soundToggle').style.background=soundEnabled?'#087f8c':'#536875';
+  if(soundEnabled)playAlert();
+ };
+
+ function showApp(){ $('login').style.display='none';$('app').style.display='block';refresh();if(poll)clearInterval(poll);poll=setInterval(refresh,5000); }
+ $('loginBtn').onclick=async()=>{ $('loginStatus').textContent='Signing in...';const {error}=await db.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error){$('loginStatus').textContent='Sign-in failed. Check your email and password.';return;}const {data:{user}}=await db.auth.getUser();const {data:allowed,error:checkError}=await db.rpc('is_hospital_admin');if(checkError||!allowed){await db.auth.signOut();$('loginStatus').textContent='This account is not authorized for the reception inbox. Ask the administrator to add it to hospital_admins.';return;}showApp();};
+ $('logout').onclick=async()=>{if(poll)clearInterval(poll);await db.auth.signOut();current=null;$('app').style.display='none';$('login').style.display='block';$('loginStatus').textContent='Signed out.';};
+ async function refresh(){
+  const {data,error}=await db.from('chat_messages').select('id,conversation_id,sender_type,sender_name,message,created_at').order('id',{ascending:true}).limit(1000);
+  if(error){$('threads').textContent='Could not load conversations. Confirm the chat SQL setup has been run.';return;}
+  rows=data||[];
+  const newVisitorMessages=[];
+  rows.forEach(m=>{
+   const id=String(m.id);
+   if(!knownMessageIds.has(id) && !firstRefresh && m.sender_type==='visitor')newVisitorMessages.push(m);
+   knownMessageIds.add(id);
+  });
+  if(!firstRefresh)notifyNewMessages(newVisitorMessages);
+  firstRefresh=false;
+  const map=new Map();rows.forEach(m=>{if(!map.has(m.conversation_id))map.set(m.conversation_id,[]);map.get(m.conversation_id).push(m);});
+  const list=[...map.entries()].sort((a,b)=>new Date(b[1][b[1].length-1].created_at)-new Date(a[1][a[1].length-1].created_at));
+  $('threads').innerHTML=list.length?'':'No messages yet.';
+  list.forEach(([id,msgs])=>{const last=msgs[msgs.length-1],visitor=msgs.find(x=>x.sender_type==='visitor');const b=document.createElement('button');b.className='thread'+(current===id?' active':'');const unread=unreadByConversation.get(id)?.size||0;b.innerHTML='<strong>'+esc(visitor?.sender_name||'Website visitor')+(unread?' <span style="display:inline-block;background:#d62828;color:white;border-radius:999px;min-width:22px;padding:1px 7px;text-align:center;font-size:12px;margin-left:5px">'+unread+'</span>':'')+'</strong><small>'+esc(last.message.slice(0,90))+'</small><small>'+esc(new Date(last.created_at).toLocaleString())+'</small>';b.onclick=()=>{current=id;unreadByConversation.delete(id);drawConversation();refresh();};$('threads').appendChild(b);});
+  if(current)drawConversation();
+ }
+ function drawConversation(){
+  const list=rows.filter(m=>m.conversation_id===current);const first=list.find(m=>m.sender_type==='visitor');
+  $('chatTitle').textContent=first?.sender_name||'Visitor conversation';$('conversation').innerHTML='';
+  list.forEach(m=>{const el=document.createElement('div');el.className='msg '+(m.sender_type==='staff'?'staff':'');el.innerHTML='<strong>'+esc(m.sender_type==='staff'?'Reception':m.sender_name)+'</strong><div>'+esc(m.message).replace(/\n/g,'<br>')+'</div><small>'+esc(new Date(m.created_at).toLocaleString())+'</small>';$('conversation').appendChild(el);});
+  $('conversation').scrollTop=$('conversation').scrollHeight;
+ }
+ $('replyBtn').onclick=async()=>{const message=$('reply').value.trim();if(!current){$('status').textContent='Select a conversation first.';return;}if(!message){$('status').textContent='Write a reply first.';return;}$('replyBtn').disabled=true;$('status').textContent='Sending...';const {error}=await db.from('chat_messages').insert({conversation_id:current,sender_type:'staff',sender_name:'Reception',message});$('replyBtn').disabled=false;if(error){$('status').textContent='Reply not sent. Check your staff access.';return;}$('reply').value='';$('status').textContent='Reply sent.';await refresh();};
+ db.auth.getSession().then(async({data:{session}})=>{if(session){const {data:allowed,error}=await db.rpc('is_hospital_admin');if(!error&&allowed)showApp();}});
+})();
+</script></body></html>
