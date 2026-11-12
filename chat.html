@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Chat with Reception | Nile Century Hospital</title>
+<meta name="description" content="Send a question or message to Nile Century Hospital reception.">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Nunito+Sans:wght@400;600;700;800&family=Noto+Sans+Ethiopic:wght@400;600;700&family=Noto+Serif+Ethiopic:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--g:#3f8f2f;--n:#2a2c7c;--r:#e01f26;--c:#fff;--t:#1c2233;--l:#dfe8e2;--navy:#102c46;--teal:#087f8c;--pale:#eef7f8;--line:#d9e5e8;--ink:#203342}
+*{box-sizing:border-box}body{margin:0;background:#f4f8fa;color:var(--ink);font:16px/1.5 Arial,sans-serif}
+/* Send message button: same look and hover as the website buttons */
+#send{position:relative;overflow:hidden;border:2px solid var(--g);background:var(--g);color:#fff;font-weight:800;padding:10px 18px;transition:transform .25s,box-shadow .25s,background .25s,color .25s,filter .25s}
+#send::after{content:"";position:absolute;top:0;left:-80%;width:45%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:left .6s;pointer-events:none}
+#send:focus-visible{outline:3px solid var(--r);outline-offset:3px}
+#send:active{transform:scale(.96)}
+@media(hover:hover){#send:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 8px 20px rgba(42,44,124,.3);filter:brightness(1.08);background:var(--n);border-color:var(--n);color:#fff}#send:hover:not(:disabled)::after{left:130%}}
+/* ===== header: same as the website (index) ===== */
+header{position:sticky;top:0;z-index:20;background:var(--c);border-bottom:1px solid var(--l);padding:4px 20px}
+header .w{max-width:1360px;margin:auto;display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:nowrap}
+header a{color:inherit;text-decoration:none}
+.brand{display:flex;align-items:center;gap:12px;flex-shrink:0}
+header .brand img{height:72px;width:auto;max-width:130px;object-fit:contain;background:#fff;border-radius:6px}
+.bn{display:flex;flex-direction:column;line-height:1.05}
+.bn b{font:700 1.5rem/1 Fraunces,Georgia,serif;letter-spacing:.4px;background:linear-gradient(90deg,var(--g),var(--n));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;white-space:nowrap}
+.bn small{display:flex;align-items:center;gap:8px;margin-top:5px;font:800 .7rem 'Nunito Sans',system-ui,sans-serif;letter-spacing:.46em;text-transform:uppercase;color:var(--r)}
+.bn small:after{content:"";flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--r),transparent)}
+header nav{display:flex;gap:14px;flex-wrap:nowrap;white-space:nowrap;font:800 .9rem 'Nunito Sans',system-ui,sans-serif}
+header nav a{padding:6px 2px;border-bottom:2px solid transparent;transition:.25s}
+header nav a:hover{color:var(--g);border-color:var(--g)}
+.hr{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.mb{display:none;background:none;border:1px solid var(--l);border-radius:8px;font-size:1.3rem;padding:4px 12px;color:var(--t);cursor:pointer}
+select.lg{width:auto;min-width:0;height:36px;padding:2px 4px;font-size:.85rem;border-radius:6px;border:1px solid var(--l);background:var(--c);color:var(--t)}
+header .btn{position:relative;overflow:hidden;display:inline-block;border-radius:8px;border:2px solid var(--g);background:var(--g);color:#fff;font:800 .88rem/1.2 'Nunito Sans',system-ui,sans-serif;padding:9px 14px;white-space:nowrap;cursor:pointer;transition:transform .25s,box-shadow .25s,background .25s,color .25s,filter .25s}
+header .btn.r{background:var(--r);border-color:var(--r)}
+header .btn::after{content:"";position:absolute;top:0;left:-80%;width:45%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:left .6s}
+header .btn:focus-visible,header nav a:focus-visible{outline:3px solid var(--r);outline-offset:3px}
+header .btn:active{transform:scale(.96)}
+@media(hover:hover){header .btn:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(42,44,124,.3);filter:brightness(1.08)}header .btn:hover::after{left:130%}header .btn.hb:hover{background:var(--n);border-color:var(--n);color:#fff}header .btn.r:hover{background:var(--n);border-color:#fff;box-shadow:0 8px 20px rgba(224,31,38,.45)}}
+html[lang="am"] body,html[lang="am"] button,html[lang="am"] input,html[lang="am"] select,html[lang="am"] textarea{font-family:'Noto Sans Ethiopic','Nunito Sans',system-ui,sans-serif}
+html[lang="am"] .bn b{font-family:'Noto Serif Ethiopic','Noto Sans Ethiopic',serif;line-height:1.3}
+html[lang="am"] .bn small{letter-spacing:.12em;text-transform:none;font-family:'Noto Sans Ethiopic',sans-serif}
+html[lang="am"] header nav{font-size:.84rem}
+html[lang="om"] .bn small{letter-spacing:.3em}
+@media(min-width:1401px){html:not([lang="om"]) header nav{font-size:.94rem}}
+@media(max-width:1280px){.bn b{font-size:1.3rem}.bn small{font-size:.62rem;letter-spacing:.4em}header .brand img{height:66px}header nav{gap:10px;font-size:.84rem}.hr{gap:6px}header .btn{padding:9px 10px;font-size:.82rem}}
+@media(max-width:1240px){.mb{display:block}header nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--c);flex-direction:column;padding:12px 20px;border-bottom:1px solid var(--l);gap:4px;white-space:normal;font-size:.95rem}header nav.open{display:flex}header nav a{padding:12px 0;font-size:1.05rem}header .w{justify-content:flex-start;width:100%}header .brand{min-width:0}.bn b{white-space:normal}.hr{margin-left:auto;min-width:0}}
+@media(max-width:700px){header .btn.hb{display:none}}
+@media(max-width:560px){header{padding:4px 12px}header .w{gap:8px}header .brand img{height:50px}.brand{gap:8px}.bn b{font-size:1.02rem}.bn small{font-size:.55rem;letter-spacing:.3em;margin-top:3px}header .btn{padding:8px 9px;font-size:.78rem}}
+@media(max-width:600px){header{padding:5px 10px}header .brand{flex:1 1 auto;min-width:0;gap:7px}header .brand img{width:42px;height:42px;max-width:42px}.bn{min-width:0}.bn b{font-size:clamp(.82rem,4vw,1.05rem);overflow-wrap:anywhere}.bn small{font-size:.48rem;letter-spacing:.18em}.mb{flex:0 0 auto}.hr{flex:0 0 auto;gap:4px}header .btn{padding:7px 8px;font-size:.7rem;white-space:normal}select.lg{max-width:48px}}
+@media(max-width:400px){.bn small{display:none}}
+@media(max-width:380px){header .brand img{width:34px;height:38px;max-width:34px}.bn b{font-size:.78rem}.mb{font-size:1.05rem;padding:4px 6px}header .btn{padding:6px;font-size:.66rem}}
+main{max-width:760px;margin:30px auto;padding:0 16px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 8px 28px #102c4610}
+h1{font-size:27px;margin:0 0 5px;color:var(--navy);text-align:center}.muted{color:#627681;font-size:14px}
+label{display:block;font-weight:600;margin:14px 0 6px}input,textarea{width:100%;border:1px solid #cbd9de;border-radius:9px;padding:12px;font:inherit}textarea{min-height:82px;resize:vertical}
+button{background:var(--teal);color:white;border:0;border-radius:9px;padding:11px 18px;font-weight:700;font-size:15px;cursor:pointer}button:disabled{opacity:.55;cursor:wait}
+#messages{height:360px;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:12px;background:#f9fcfc;margin:18px 0;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:86%;padding:10px 13px;border-radius:13px;background:#e8f1f4;align-self:flex-start;overflow-wrap:anywhere}.msg.mine{background:#d9f2ef;align-self:flex-end}.msg small{display:block;color:#647780;margin-top:4px;font-size:11px}
+.notice{background:#fff8e8;border:1px solid #f0dfb8;border-radius:10px;padding:12px;margin:15px 0;font-size:13px}
+#status{min-height:22px;color:var(--teal);font-size:13px;margin-top:8px}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+@media(max-width:520px){.panel{padding:16px}#messages{height:330px}}
+</style>
+</head>
+<body>
+<header><div class="w"><a class="brand" href="index.html#home"><img src="images/Profile.webp" alt="Nile Century Hospital logo" onerror="this.onerror=null;this.src='images/Profile.jpg'"><span class="bn"><b>Nile Century</b><small>Hospital</small></span></a>
+<button class="mb" id="mb" type="button" aria-label="Menu">☰</button><nav id="nv"><a href="index.html#home">Home</a><a href="index.html#about">About</a><a href="index.html#services">Services</a><a href="index.html#doctors">Doctors</a><a href="index.html#packages">Packages</a><a href="index.html#guide">Patient Guide</a><a href="index.html#news">News</a><a href="index.html#contact">Address</a></nav>
+<div class="hr"><select class="lg" id="lang" aria-label="Language"><option value="en">EN</option><option value="am">አማ</option><option value="om">OM</option></select><a class="btn hb" href="index.html#book">Book Appointment</a><a class="btn r" href="tel:0998111114">🚑 0998111114/15</a></div></div></header>
+<main><section class="panel">
+<h1>Chat with Our Reception</h1><div class="muted">Ask a question, leave a comment, or contact our reception team.</div>
+<div id="identity">
+<label for="visitorName">Your name</label><input id="visitorName" maxlength="80" autocomplete="name" placeholder="Your name">
+<label for="visitorContact">Phone or email (optional)</label><input id="visitorContact" maxlength="120" placeholder="How reception can contact you">
+</div>
+<div id="messages" aria-live="polite"><div class="muted">Your conversation will appear here. Send a message to begin.</div></div>
+<label for="message">Your message</label><textarea id="message" maxlength="2000" placeholder="Type your question or comment..."></textarea>
+<div class="actions"><span class="muted">Messages are sent to hospital reception.</span><button id="send">Send message</button></div>
+<div id="status" role="status" data-nt></div>
+</section></main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ===== LANGUAGE ENGINE: EN / አማ / OM (shares the website's language choice) ===== */
+(function(){
+var D={"Nile Century": ["ናይል ሴንቸሪ", "Nile Century"], "Hospital": ["ሆስፒታል", "Hospitaala"], "Home": ["መነሻ", "Jalqaba"], "About": ["ስለ እኛ", "Waa'ee Keenya"], "Services": ["አገልግሎቶች", "Tajaajiloota"], "Doctors": ["ሐኪሞች", "Doktoota"], "Packages": ["ፓኬጆች", "Paakeejiiwwan"], "Patient Guide": ["የታካሚ መመሪያ", "Qajeelfama"], "News": ["ዜና", "Oduu"], "Address": ["አድራሻ", "Teessoo"], "Book Appointment": ["ቀጠሮ ይያዙ", "Beellama Qabadhaa"], "Menu": ["ምናሌ", "Tarree"], "Language": ["ቋንቋ", "Afaan"], "Nile Century Hospital logo": ["የናይል ሴንቸሪ ሆስፒታል አርማ", "Mallattoo Hospitaala Nile Century"], "Chat with Our Reception": ["ከመቀበያችን ጋር ይወያዩ", "Simannaa keenya waliin haasa’aa"], "Ask a question, leave a comment, or contact our reception team.": ["ጥያቄ ይጠይቁ፣ አስተያየት ይተዉ ወይም የመቀበያ ቡድናችንን ያግኙ።", "Gaaffii gaafadhaa, yaada keessan kaa’aa ykn garee simannaa keenya qunnamaa."], "Your name": ["ስምዎ", "Maqaa keessan"], "Phone or email (optional)": ["ስልክ ወይም ኢሜይል (አማራጭ)", "Bilbila ykn imeelii (kan filatamu)"], "How reception can contact you": ["መቀበያው እንዴት ሊያገኝዎ እንደሚችል", "Akkamitti simannaan isin qunnamuu danda’a"], "Your conversation will appear here. Send a message to begin.": ["ውይይትዎ እዚህ ይታያል። ለመጀመር መልዕክት ይላኩ።", "Haasa’i keessan as ni mul’ata. Jalqabuuf ergaa ergaa."], "Your message": ["መልዕክትዎ", "Ergaa keessan"], "Type your question or comment...": ["ጥያቄዎን ወይም አስተያየትዎን ይጻፉ...", "Gaaffii ykn yaada keessan barreessaa..."], "Messages are sent to hospital reception.": ["መልዕክቶች ወደ ሆስፒታሉ መቀበያ ይላካሉ።", "Ergaawwan simannaa hospitaalaatti ergamu."], "Send message": ["መልዕክት ላክ", "Ergaa ergi"]},Y={"Chat could not load. Please refresh this page.": ["ውይይቱ መጫን አልቻለም። እባክዎ ገጹን ያድሱ።", "Haasa’i kun banuu hin dandeenye. Maaloo fuula kana haaromsaa."], "Unable to load messages. Please refresh or try again later.": ["መልዕክቶችን መጫን አልተቻለም። እባክዎ ያድሱ ወይም ቆይተው እንደገና ይሞክሩ።", "Ergaawwan baasuu hin dandeenye. Maaloo haaromsaa ykn booda irra deebi’aa yaalaa."], "Please enter your name.": ["እባክዎ ስምዎን ያስገቡ።", "Maaloo maqaa keessan galchaa."], "Please type a message first.": ["እባክዎ መጀመሪያ መልዕክት ይጻፉ።", "Maaloo dura ergaa barreessaa."], "Sending...": ["በመላክ ላይ...", "Ergaa jira..."], "Message not sent. Please try again.": ["መልዕክቱ አልተላከም። እባክዎ እንደገና ይሞክሩ።", "Ergaan hin ergamne. Maaloo irra deebi’aa yaalaa."], "Message sent to reception.": ["መልዕክቱ ወደ መቀበያ ተልኳል።", "Ergaan simannaaf ergameera."], "You": ["እርስዎ", "Isin"]};
+var IDX={am:0,om:1},cur='en',KEY='ncLang';
+function nk(s){return s.replace(/\s+/g,' ').trim()}
+function has(o,k){return Object.prototype.hasOwnProperty.call(o,k)}
+window.tr=function(k){var d=(cur!=='en'&&has(Y,k))?Y[k][IDX[cur]]:null;return d||k};
+var ATTR=['placeholder','aria-label','title','alt'];
+function apply(lang){
+ cur=lang;document.documentElement.lang=lang;
+ var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:function(n){
+  var p=n.parentNode;if(!p||!n.nodeValue.trim())return NodeFilter.FILTER_REJECT;
+  var t=p.nodeName;if(t==='SCRIPT'||t==='STYLE'||t==='NOSCRIPT')return NodeFilter.FILTER_REJECT;
+  if(p.closest&&p.closest('[data-nt]'))return NodeFilter.FILTER_REJECT;
+  return NodeFilter.FILTER_ACCEPT}});
+ var n;
+ while(n=w.nextNode()){
+  if(n._o===undefined)n._o=n.nodeValue;
+  var o=n._o;if(lang==='en'){n.nodeValue=o;continue}
+  var k=nk(o);
+  if(has(D,k)){var t=D[k][IDX[lang]];if(t)n.nodeValue=o.match(/^\s*/)[0]+t+o.match(/\s*$/)[0]}
+ }
+ document.querySelectorAll('[placeholder],[aria-label],[title],[alt]').forEach(function(e){
+  ATTR.forEach(function(a){
+   if(!e.hasAttribute(a))return;
+   e._oa=e._oa||{};if(e._oa[a]===undefined)e._oa[a]=e.getAttribute(a);
+   var k=nk(e._oa[a]);
+   e.setAttribute(a,(lang!=='en'&&has(D,k)&&D[k][IDX[lang]])?D[k][IDX[lang]]:e._oa[a])})
+ });
+ document.querySelectorAll('.who').forEach(function(e){e.textContent=window.tr('You')});
+ var st=document.getElementById('status');if(st)st.textContent='';
+}
+var sel=document.getElementById('lang');
+sel.onchange=function(){apply(this.value);try{localStorage.setItem(KEY,this.value)}catch(e){}};
+var sv='en';try{sv=localStorage.getItem(KEY)||'en'}catch(e){}
+if(has(IDX,sv)){sel.value=sv;apply(sv)}else{sel.value='en'}
+document.getElementById('mb').onclick=function(){document.getElementById('nv').classList.toggle('open')};
+})();
+</script>
+<script>
+(() => {
+ const URL='https://cmsxkczawawiyoamywnz.supabase.co';
+ const KEY='sb_publishable_8aJbvv-rmzaF9KUMQoRlig_uv1kNa4u';
+ const TOKEN_KEY='nch_reception_chat_token_v1', NAME_KEY='nch_reception_chat_name_v1', CONTACT_KEY='nch_reception_chat_contact_v1';
+ const T=k=>window.tr?window.tr(k):k;
+ const status=document.getElementById('status'), box=document.getElementById('messages'), send=document.getElementById('send');
+ if(!window.supabase){status.textContent=T('Chat could not load. Please refresh this page.');return;}
+ let token=localStorage.getItem(TOKEN_KEY);
+ if(!token){token=crypto.randomUUID();localStorage.setItem(TOKEN_KEY,token);}
+ const db=window.supabase.createClient(URL,KEY,{global:{headers:{'x-chat-token':token}}});
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const stamp=s=>new Date(s).toLocaleString();
+ let lastId=0, loading=false;
+ const nameInput=document.getElementById('visitorName'), contactInput=document.getElementById('visitorContact');
+ nameInput.value=localStorage.getItem(NAME_KEY)||'';contactInput.value=localStorage.getItem(CONTACT_KEY)||'';
+ function render(rows){
+   const fresh=(rows||[]).filter(m=>(Number(m.id)||0)>lastId);
+   if(!fresh.length)return;
+   if(!box.dataset.hasMessages){box.innerHTML='';box.dataset.hasMessages='1';}
+   fresh.forEach(m=>{const el=document.createElement('div');el.className='msg '+(m.sender_type==='visitor'?'mine':'');el.setAttribute('data-nt','');el.innerHTML='<strong'+(m.sender_type==='visitor'?' class="who"':'')+'>'+esc(m.sender_type==='visitor'?T('You'):'NCH')+'</strong><div>'+esc(m.message).replace(/\n/g,'<br>')+'</div><small>'+esc(stamp(m.created_at))+'</small>';box.appendChild(el);lastId=Math.max(lastId,Number(m.id)||0);});
+   box.scrollTop=box.scrollHeight;
+ }
+ async function load(){
+   if(loading)return;loading=true;
+   let result;
+   try {
+     result=await db.from('chat_messages').select('id,sender_type,sender_name,message,created_at').eq('conversation_id',token).order('id',{ascending:true}).limit(100);
+   } catch(e) {
+     loading=false;status.textContent=T('Unable to load messages. Please refresh or try again later.');return;
+   }
+   const {data,error}=result;
+   loading=false;
+   if(error){status.textContent=T('Unable to load messages. Please refresh or try again later.');return;}
+   render(data||[]);
+ }
+ send.addEventListener('click',async()=>{
+   const message=document.getElementById('message').value.trim(),name=nameInput.value.trim(),contact=contactInput.value.trim();
+   if(!name){status.textContent=T('Please enter your name.');nameInput.focus();return;}
+   if(!message){status.textContent=T('Please type a message first.');return;}
+   send.disabled=true;status.textContent=T('Sending...');
+   localStorage.setItem(NAME_KEY,name);localStorage.setItem(CONTACT_KEY,contact);
+   const senderName=contact?name+' · '+contact:name;
+   const {error}=await db.from('chat_messages').insert({conversation_id:token,sender_type:'visitor',sender_name:senderName,message});
+   send.disabled=false;
+   if(error){status.textContent=T('Message not sent. Please try again.');return;}
+   document.getElementById('message').value='';status.textContent=T('Message sent to reception.');await load();
+ });
+ document.getElementById('message').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send.click();}});
+ load();setInterval(load,5000);
+})();
+</script>
+</body></html>
